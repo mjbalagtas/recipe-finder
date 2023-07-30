@@ -1,62 +1,59 @@
-import React from 'react'
-import { Card, CardBody, CardFooter, Image, Stack, Heading, Text, Button, ButtonGroup, Divider} from '@chakra-ui/react'
+import React, {useState, useEffect, useRef} from 'react'
+import RecipeCardList from './components/RecipeCardList'
+import recipeService from './services/recipes'
+import {
+  AbsoluteCenter,
+  Box,
+  Stack,
+  Input,
+  Button,
+} from '@chakra-ui/react'
 
-
-const data = [
-  {
-    title: "Miso-Butter Roast Chicken With Acorn Squash Panzanella",
-    imageName: "miso-butter-roast-chicken-acorn-squash-panzanella"
-  },
-  {
-    title: "Crispy Salt and Pepper Potatoes",
-    imageName: "crispy-salt-and-pepper-potatoes-dan-kluger"
-  },
-  {
-    title: "Thanksgiving Mac and Cheese",
-    imageName: "thanksgiving-mac-and-cheese-erick-williams"
-  },
-  {
-    title: "Italian Sausage and Bread Stuffing",
-    imageName: "italian-sausage-and-bread-stuffing-240559"
-  },
-  { 
-    title: "Newton's Law",
-    imageName: "newtons-law-apple-bourbon-cocktail"
-  },
-  {
-    title: "Warm Comfort",
-    imageName: "warm-comfort-tequila-chamomile-toddy"
-  }
-]
-const image_url = "foodImages/" + data[0].imageName +".jpg"
+import {
+  AddIcon,
+  CloseIcon,
+} from '@chakra-ui/icons'
 
 const App = () => {
+  const [topListRecipes, setTopListRecipes] = useState([])
+  const btnRef = useRef(null)
+  const [visible, setVisible] = useState(true)
+
+  const toggleVisibility = () => {
+    setVisible(!visible)
+  }
+
+  useEffect(() => {
+    const ingredients = {
+      searched_ingredients: ["vinegar", "chicken", "onion", "garlic"]
+    }
+    recipeService
+      .getTopList(ingredients)
+      .then(response => {
+        setTopListRecipes(response)
+      })
+      console.log(topListRecipes)
+  }, [])
   return(
     <>
-      <Card maxW='lg' variant='elevated' align='center'>
-        <CardBody align='center'>
-          <Image  src={image_url} alt={data[0].title} borderRadius='lg' />
-          <Stack mt='6' spacing='3'>
-            <Heading size='md'>
-              {data[0].title}
-            </Heading>
-            <Text>
-
-            </Text>
-          </Stack>
-        </CardBody>
-        <Divider />
-        <CardFooter>
-          <ButtonGroup spacing='2'>
-            <Button variant='solid' colorScheme='blue'>
-              Ingredients
-            </Button>
-            <Button variant='ghost' colorScheme='blue'>
-              Instructions
-            </Button>
-          </ButtonGroup>
-        </CardFooter>
-      </Card>
+    <Box maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
+      <Box>
+      <Stack spacing={3}>
+        {visible && <Button onClick={toggleVisibility}><Input placeholder='extra small size' size='xs' /><CloseIcon /></Button> }
+        <Input placeholder='small size' size='sm' />
+        <Input placeholder='medium size' size='md' />
+        <Input placeholder='large size' size='lg' />
+        <Button><AddIcon boxSize={6} /></Button>
+        <Button>Submit</Button>
+      </Stack>
+      </Box>
+      <AbsoluteCenter color='white'>
+      <RecipeCardList 
+        recipes={topListRecipes} 
+        btnRef={btnRef}
+      />
+      </AbsoluteCenter>
+    </Box>
     </>
   )
 }
